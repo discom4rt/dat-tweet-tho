@@ -1,0 +1,14 @@
+{
+  "name": "twitter-gardenhose",
+  "version": "0.0.1",
+  "description": "Collect and save 1% of the twitter firehose; node.js that is ready to run on Heroku",
+  "engines": {
+    "node": "0.8.1",
+    "npm": "1.1.x"
+  },
+  "dependencies": {
+    "commander": "1.0.2",
+    "twitter": "0.1.18",
+    "knox": "0.0.9"
+  }
+}
