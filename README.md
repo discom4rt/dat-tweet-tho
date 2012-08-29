@@ -58,7 +58,7 @@ If you want to actually write to S3 run
 Once you are satisfied that everything is set up correctly, you probably want to run the Gardenhose on a PaaS which will have faster upload to S3 and will keep running even when you shut down your local machine. This README assumes you have a [heroku](http://heroku.com) account, and have installed the [heroku toolbelt](https://toolbelt.heroku.com).
 
 ### To deploy the app to heroku:
-1. `heroku create`
+1. `heroku create twitter-gardenhose`
 2. `git push heroku master` - Pushes and deploys the app
 3. Make sure you have the heroku toolbelt installed. If not, go to https://toolbelt.heroku.com/
 4. `heroku ps:scale worker=1` - Starts the worker and begins mining
