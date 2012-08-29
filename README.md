@@ -60,10 +60,27 @@ Once you are satisfied that everything is set up correctly, you probably want to
 ### To deploy the app to heroku:
 1. `heroku create twitter-gardenhose`
 2. `git push heroku master` - Pushes and deploys the app
-3. Make sure you have the heroku toolbelt installed. If not, go to https://toolbelt.heroku.com/
-4. `heroku ps:scale worker=1` - Starts the worker and begins mining
-tweets.
-5. `heroku ps:scale worker=0` - Shuts down the worker.
+3. Set heroku configuration
+
+`heroku config:add TWITTER_CONSUMER_KEY=<<Your twitter consumer key>>`
+  
+`heroku config:add TWITTER_CONSUMER_SECRET=<<Your twitter consumer secret>>`
+
+`heroku config:add TWITTER_ACCESS_TOKEN_KEY=<<Your twitter access token key>>`
+
+`heroku config:add TWITTER_ACCESS_TOKEN_SECRET=<<Your twitter access token secret>>`
+
+`heroku config:add AWS_ACCESS_KEY_ID=<<Your AWS access key ID>>`
+
+`heroku config:add AWS_SECRET_ACCESS_KEY=<<Your AWS secret access key>>`
+
+`heroku config:add AWS_S3_BUCKET_NAME=<<Your AWS S3 bucket name to store tweets>>`
+
+### Start on Heroku
+`heroku ps:scale worker=1` - Starts the worker and begins storing tweets.
+
+### Stop on Heroku
+`heroku ps:scale worker=0` - Shuts down the worker.
 
 Note, you should not have more than one worker going. Doing so will cause
 duplication in the tweets that are stored on S3
