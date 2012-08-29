@@ -24,7 +24,7 @@ opts
 
 var current_stream = undefined          // WriteStream of tweets
 var INTERVAL_MS__STREAM_CHECK = 1000;   // Number of milliseconds to wait between checking the stream size (1 second)
-var BYTE_SIZE__NEW_FILE_CUT = 20000; // Bytes of tweets to accumulate before writing a file to S3 (20MB)
+var BYTE_SIZE__NEW_FILE_CUT = 200000; // Bytes of tweets to accumulate before writing a file to S3 (20MB)
 var file_name = "";                     // Name of file to write to S3
 var to_exit = false;                    // Set to true on SIGINT -- for graceful shutdown
 
