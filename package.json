@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "commander": "1.0.2",
-    "twitter": "0.1.18",
-    "knox": "0.0.9"
+    "twitter": "0.2.4"
   }
 }

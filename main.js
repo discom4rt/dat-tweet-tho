@@ -14,19 +14,16 @@
        
 var fs = require('fs');            // node file system api
 var twitter = require('twitter');  // Twitter API wrapper: https://github.com/jdub/node-twitter
-var knox = require('knox');        // S3 API wrapper: https://github.com/LearnBoost/knox
 var opts = require('commander');   // Parse command line arguments
 opts
     .version('0.0.1')
     .option('-v, --verbose', 'log every tweet to console')
-    .option('-d, --dryrun', 'do not write to S3')
     .parse(process.argv);
 
-var current_stream = undefined          // WriteStream of tweets
-var INTERVAL_MS__STREAM_CHECK = 1000;   // Number of milliseconds to wait between checking the stream size (1 second)
-var BYTE_SIZE__NEW_FILE_CUT = 20000000; // Bytes of tweets to accumulate before writing a file to S3 (20MB)
-var file_name = "";                     // Name of file to write to S3
+var TWEET_INTERVAL = 2000;              // The amount of tweets that must be tweeted before one gets fucked
 var to_exit = false;                    // Set to true on SIGINT -- for graceful shutdown
+var count = 0;                          // The number of tweets that have been seen
+var symbols = ['#'];
 
 // Initialize Twitter API keys
 var twit = new twitter({
@@ -36,86 +33,69 @@ var twit = new twitter({
     access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
 });
 
-// Initialize S3 API keys
-var s3 = knox.createClient({
-    key: process.env.AWS_ACCESS_KEY_ID, 
-    secret: process.env.AWS_SECRET_ACCESS_KEY,
-    bucket: process.env.AWS_S3_BUCKET_NAME
-})
+twit.verifyCredentials(function(data) {
+  console.log("cred: "+JSON.stringify(data));
+});
 
-// Open up the initial file handler.
-newWriteStream();
-
-// Check the state of the file every second
-setInterval(function(){
-  fs.stat(file_name, function(err, stats){
-    if (stats.size > BYTE_SIZE__NEW_FILE_CUT) {
-      newWriteStream();
-    }
-  });
-},INTERVAL_MS__STREAM_CHECK);
 
 twit.stream('statuses/sample', {}, function(stream) {
   stream.on('data', function(data) {
-    if(opts.verbose) {
-        console.log("loc: "+JSON.stringify(data.place)+" : "+data.text);
-    }
 
-    if ((! opts.dryrun) && current_stream.writable) {
-       current_stream.write(JSON.stringify(data)+"\n");
-    }
+      count++;
+      process.stdout.write(count + "\r");
+      if( count >= TWEET_INTERVAL && data.text ) {
+        fuckThatTweetUp( data.text );
+        count = 0;
+      }
+
+      // console.log("loc: "+JSON.stringify(data.place)+" : "+data.text);
   });
 });
 
-function newWriteStream() {
-  // Close out the existing file first!
-  closeCurrentStream();
+function fuckThatTweetUp( tweet ) {
+  var newTweet = [],
+    splitTweet,
+    word,
+    randomIndex,
+    symbolIndex,
+    symbol;
 
-  // Reassign current file to a new file
-  file_name = new Date().getTime();
-  file_name = file_name.toString() + '.json';
-  console.log("============ Cutting a new stream:", file_name);
-  stream = fs.createWriteStream(file_name);
-  current_stream = stream;
-}
+  tweet = tweet.replace(/RT|\"|\'/g, '').replace(/^\s+|\s+$/g, '');
+  splitTweet = tweet.split(/\s+/);
 
-function closeCurrentStream() {
-  if (current_stream) {
-    current_stream.destroySoon();
+  while(splitTweet.length) {
+    randomIndex = Math.floor(Math.random() * splitTweet.length);
+    word = splitTweet.splice(randomIndex, 1);
 
-    upload_name = file_name;
-    current_stream.on("close", function(){
-      console.log("^^^^^^^^^^^^ Uploading "+upload_name);
-      fs.readFile(upload_name, function(err, buf){
-        if (err) throw err;
-
-        var req = s3.put('tweets/'+upload_name, {
-            'Content-Length': buf.length
-          , 'Content-Type': 'text/plain'
-        });
-
-        req.on('response', function(res){
-          if (200 == res.statusCode) {
-            console.log('>>>>>>>>>> Saved to %s', req.url);
-            fs.unlinkSync(upload_name);
-            if (to_exit) {
-              process.exit();
-            }
-          }
-          else {
-            console.log('Error uploading! Status code:' + res.statusCode);
-          }
-        });
-        req.end(buf);
-      });
-    });
+    if( !/^http|^#/.test(word) ) {
+      // A "50%" chance to throw in a symbol
+      symbolIndex = Math.floor(Math.random() * symbols.length * 2);
+      symbol = symbols[symbolIndex] || '';
+      word = word.toString().replace(/^@/, '+');
+      newTweet.push(symbol + word);
+    } else {
+      newTweet.push(word);
+    }
   }
+
+  twit.updateStatus(newTweet.join(' '), function(data) {
+      console.log('test: ' + JSON.stringify(data));
+    }
+  );
 }
+
+// both can be undefined
+// theres "RT" in some
+// consider randomly combining words
+// looks like its still safe to split by space
+// preserve URLS
+// remove quotes
 
 process.on('SIGINT', function(){
   to_exit = true;
   closeCurrentStream();
 });
+
 process.on('exit', function(){
   console.log("ABOUT TO EXIT!");
 });
