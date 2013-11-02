@@ -1,7 +1,7 @@
 {
-  "name": "twitter-gardenhose",
+  "name": "dat-tweet-tho",
   "version": "0.0.1",
-  "description": "Collect and save 1% of the twitter firehose; node.js that is ready to run on Heroku",
+  "description": "Tweets a random word between DAT and THO",
   "engines": {
     "node": "0.8.1",
     "npm": "1.1.x"

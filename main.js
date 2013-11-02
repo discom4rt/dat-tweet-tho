@@ -22,7 +22,7 @@ twit.verifyCredentials(function(data) {
   }
 });
 
-
+// Every TWEET_INTERVAL construct tweet a DAT <RANDOM WORD> THO
 twit.stream('statuses/sample', {}, function(stream) {
   stream.on('data', function(data) {
     count++;
