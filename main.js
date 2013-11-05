@@ -5,7 +5,7 @@ opts.version('0.0.1')
     .option('-v, --verbose', 'Log some debug info to the console')
     .parse(process.argv);
 
-var TWEET_INTERVAL = 200000,  // The amount of tweets that must be tweeted before one gets fucked
+var TWEET_INTERVAL = 100000,  // The amount of tweets that must be tweeted before one gets fucked
   count = 0;                  // The number of tweets that have been seen
 
 // Initialize Twitter API keys
@@ -47,7 +47,7 @@ function makeDatTweet( tweet ) {
     symbolIndex,
     symbol;
 
-  tweet = tweet.replace(/RT|\"|\'|\:/g, '').replace(/^\s+|\s+$/g, '');
+  tweet = tweet.replace(/RT|\"|\'|\:|@/g, '').replace(/^\s+|\s+$/g, '');
   splitTweet = tweet.split(/\s+/);
 
   while(splitTweet.length && !word) {
