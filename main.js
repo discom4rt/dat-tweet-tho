@@ -5,8 +5,8 @@ opts.version('0.0.1')
     .option('-v, --verbose', 'Log some debug info to the console')
     .parse(process.argv);
 
-var TWEET_INTERVAL = 25000,  // The amount of tweets that must be tweeted before one gets fucked
-  count = 0;                 // The number of tweets that have been seen
+var TWEET_INTERVAL = 100000,  // The amount of tweets that must be tweeted before one gets fucked
+  count = 0;                  // The number of tweets that have been seen
 
 // Initialize Twitter API keys
 var twit = new twitter({
